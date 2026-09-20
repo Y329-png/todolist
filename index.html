@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>待办清单</title>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="待办">
+  <meta name="theme-color" content="#f2f2f7">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header-text">
+        <h1>待办</h1>
+        <p id="subtitle" class="subtitle"></p>
+      </div>
+      <div class="header-actions">
+        <button id="backup-btn" class="text-btn" type="button">备份</button>
+        <button id="restore-btn" class="text-btn" type="button">恢复</button>
+        <input id="restore-file" type="file" accept="application/json,.json" hidden>
+      </div>
+    </header>
+
+    <form id="add-form" class="add-bar" autocomplete="off">
+      <input id="todo-input" class="todo-input" type="text" placeholder="要做点什么？"
+             enterkeyhint="done" maxlength="200">
+      <div class="add-row">
+        <div class="chips" role="group" aria-label="截止时间">
+          <button type="button" class="chip active" data-due="today">今天</button>
+          <button type="button" class="chip" data-due="tomorrow">明天</button>
+          <button type="button" class="chip" data-due="later">以后</button>
+        </div>
+        <button type="submit" class="add-btn">添加</button>
+      </div>
+    </form>
+
+    <main id="todo-list" class="todo-list"></main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

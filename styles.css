@@ -1,0 +1,310 @@
+:root {
+  --bg: #f2f2f7;
+  --card: #ffffff;
+  --text: #1c1c1e;
+  --text-sub: #8e8e93;
+  --accent: #007aff;
+  --danger: #ff3b30;
+  --success: #34c759;
+  --separator: rgba(60, 60, 67, 0.12);
+  --chip-bg: rgba(120, 120, 128, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --card: #1c1c1e;
+    --text: #ffffff;
+    --text-sub: #8e8e93;
+    --accent: #0a84ff;
+    --danger: #ff453a;
+    --success: #30d158;
+    --separator: rgba(84, 84, 88, 0.6);
+    --chip-bg: rgba(120, 120, 128, 0.22);
+  }
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  max-width: 560px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px
+    calc(env(safe-area-inset-bottom, 0px) + 24px);
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 4px 12px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--text-sub);
+}
+
+.header-actions {
+  display: flex;
+  gap: 4px;
+  padding-bottom: 2px;
+}
+
+.text-btn {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 15px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.text-btn:active {
+  opacity: 0.4;
+}
+
+.add-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg);
+  padding: 4px 0 12px;
+}
+
+.todo-input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: var(--card);
+  color: var(--text);
+  font-size: 17px;
+  padding: 14px 16px;
+  border-radius: 14px;
+}
+
+.todo-input::placeholder {
+  color: var(--text-sub);
+}
+
+.add-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+}
+
+.chip {
+  border: 0;
+  background: var(--chip-bg);
+  color: var(--text);
+  font-size: 14px;
+  padding: 7px 14px;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.chip.active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.add-btn {
+  border: 0;
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 18px;
+  cursor: pointer;
+}
+
+.add-btn:active, .chip:active {
+  opacity: 0.6;
+}
+
+.section {
+  margin-top: 22px;
+}
+
+.section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0 8px 6px;
+}
+
+.section-title h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.section-title.overdue h2 {
+  color: var(--danger);
+}
+
+.count {
+  font-size: 13px;
+  color: var(--text-sub);
+  font-variant-numeric: tabular-nums;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.todo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 12px;
+  min-height: 48px;
+}
+
+.todo + .todo {
+  border-top: 0.5px solid var(--separator);
+}
+
+.check {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--text-sub);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+}
+
+.todo.done .check {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.todo.done .check::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 4px;
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.todo-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.text {
+  font-size: 16px;
+  line-height: 1.35;
+  word-break: break-word;
+  cursor: pointer;
+}
+
+.todo.done .text {
+  color: var(--text-sub);
+  text-decoration: line-through;
+}
+
+.delete {
+  flex: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 22px;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.delete:active, .text:active {
+  opacity: 0.4;
+}
+
+.edit-input, .edit-select {
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 6px 8px;
+  width: 100%;
+  outline: none;
+}
+
+.edit-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.edit-select {
+  width: auto;
+  flex: none;
+}
+
+.link-btn {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+.empty {
+  text-align: center;
+  color: var(--text-sub);
+  padding: 64px 24px;
+  font-size: 15px;
+  line-height: 1.7;
+}
