@@ -1,27 +1,39 @@
 :root {
   color-scheme: light dark;
-  --bg: #f2f2f7;
+  --bg: #e8f5ef;
+  --bg-to: #dff3ea;
+  --bg-sticky: rgba(232, 245, 239, 0.82);
   --card: #ffffff;
-  --text: #1c1c1e;
-  --text-sub: #8e8e93;
-  --accent: #007aff;
-  --danger: #ff3b30;
-  --success: #34c759;
-  --separator: rgba(60, 60, 67, 0.12);
-  --chip-bg: rgba(120, 120, 128, 0.12);
+  --text: #2f4f43;
+  --text-sub: #8aa596;
+  --accent: #f78fa7;
+  --accent-dark: #e86f8d;
+  --accent-soft: #fdeef2;
+  --mint: #93d2b8;
+  --mint-dark: #5cae8a;
+  --danger: #f26d5b;
+  --shadow: 0 2px 12px rgba(96, 160, 130, 0.14);
+  --separator: rgba(95, 150, 125, 0.14);
+  --chip-bg: rgba(147, 210, 184, 0.18);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #000000;
-    --card: #1c1c1e;
-    --text: #ffffff;
-    --text-sub: #8e8e93;
-    --accent: #0a84ff;
-    --danger: #ff453a;
-    --success: #30d158;
-    --separator: rgba(84, 84, 88, 0.6);
-    --chip-bg: rgba(120, 120, 128, 0.22);
+    --bg: #16241d;
+    --bg-to: #101b15;
+    --bg-sticky: rgba(22, 36, 29, 0.82);
+    --card: #1f2f27;
+    --text: #e9f3ed;
+    --text-sub: #8aa696;
+    --accent: #f78fa7;
+    --accent-dark: #f79fb4;
+    --accent-soft: rgba(247, 143, 167, 0.13);
+    --mint: #4d7d67;
+    --mint-dark: #79b89c;
+    --danger: #ff7a66;
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+    --separator: rgba(255, 255, 255, 0.08);
+    --chip-bg: rgba(147, 210, 184, 0.1);
   }
 }
 
@@ -40,7 +52,13 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
     "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   color: var(--text);
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg-to) 100%);
+  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(247, 143, 167, 0.28);
 }
 
 .app {
@@ -81,7 +99,7 @@ body {
 .text-btn {
   border: 0;
   background: transparent;
-  color: var(--accent);
+  color: var(--accent-dark);
   font-size: 15px;
   padding: 6px 8px;
   border-radius: 8px;
@@ -96,19 +114,27 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--bg);
+  background: var(--bg-sticky);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   padding: 4px 0 12px;
 }
 
 .todo-input {
   width: 100%;
-  border: 0;
+  border: 1.5px solid transparent;
   outline: none;
   background: var(--card);
   color: var(--text);
   font-size: 17px;
   padding: 14px 16px;
-  border-radius: 14px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  transition: border-color 0.15s ease;
+}
+
+.todo-input:focus {
+  border-color: var(--accent);
 }
 
 .todo-input::placeholder {
@@ -129,17 +155,18 @@ body {
 }
 
 .chip {
-  border: 0;
+  border: 1.5px solid var(--mint);
   background: var(--chip-bg);
   color: var(--text);
   font-size: 14px;
-  padding: 7px 14px;
+  padding: 6px 14px;
   border-radius: 16px;
   cursor: pointer;
 }
 
 .chip.active {
   background: var(--accent);
+  border-color: var(--accent);
   color: #fff;
   font-weight: 600;
 }
@@ -153,6 +180,7 @@ body {
   padding: 8px 18px;
   border-radius: 18px;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(247, 143, 167, 0.35);
 }
 
 .add-btn:active, .chip:active {
@@ -179,6 +207,7 @@ body {
   padding: 8px 12px;
   border-radius: 12px;
   min-height: 36px;
+  box-shadow: var(--shadow);
 }
 
 .later-hint {
@@ -251,8 +280,26 @@ body {
 
 .card {
   background: var(--card);
-  border-radius: 14px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
   overflow: hidden;
+}
+
+.done-card {
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.done-card .todo {
+  background: var(--accent-soft);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  border-top: 0;
+}
+
+.done-card .todo:last-child {
+  margin-bottom: 0;
 }
 
 .todo {
@@ -272,7 +319,7 @@ body {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  border: 2px solid var(--text-sub);
+  border: 2px solid var(--mint);
   background: transparent;
   cursor: pointer;
   padding: 0;
@@ -280,8 +327,8 @@ body {
 }
 
 .todo.done .check {
-  background: var(--success);
-  border-color: var(--success);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .todo.done .check::after {
@@ -365,7 +412,7 @@ body {
 .link-btn {
   border: 0;
   background: transparent;
-  color: var(--accent);
+  color: var(--accent-dark);
   font-size: 13px;
   cursor: pointer;
   padding: 0 8px;

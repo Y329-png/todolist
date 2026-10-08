@@ -342,7 +342,7 @@
         section.appendChild(dayLabel);
 
         var card = document.createElement('div');
-        card.className = 'card';
+        card.className = 'card done-card';
         byDay[key].forEach(function (item) { card.appendChild(makeRow(item)); });
         section.appendChild(card);
       });
