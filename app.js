@@ -8,6 +8,9 @@
     form: document.getElementById('add-form'),
     input: document.getElementById('todo-input'),
     chips: Array.prototype.slice.call(document.querySelectorAll('.chip')),
+    laterRow: document.getElementById('later-row'),
+    laterDate: document.getElementById('later-date'),
+    laterClear: document.getElementById('later-clear'),
     list: document.getElementById('todo-list'),
     subtitle: document.getElementById('subtitle'),
     backupBtn: document.getElementById('backup-btn'),
@@ -18,6 +21,8 @@
   var state = {
     items: load(),
     due: 'today',
+    laterDate: '',
+    doneOpen: false,
     editingId: null
   };
 
@@ -52,16 +57,27 @@
     return Date.now() + '-' + Math.random().toString(16).slice(2);
   }
 
+  function parseDateStr(s) {
+    var p = s.split('-');
+    return new Date(+p[0], +p[1] - 1, +p[2]);
+  }
+
+  function formatDateLabel(dateStr) {
+    var d = parseDateStr(dateStr);
+    return (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + WEEKDAYS[d.getDay()];
+  }
+
+  function relativeDayLabel(dateStr) {
+    if (dateStr === todayStr(0)) return '今天';
+    if (dateStr === todayStr(-1)) return '昨天';
+    return formatDateLabel(dateStr);
+  }
+
   function dueToDate(due) {
     if (due === 'today') return todayStr(0);
     if (due === 'tomorrow') return todayStr(1);
+    if (due === 'later') return state.laterDate || null;
     return null;
-  }
-
-  function dateToDue(date) {
-    if (date === todayStr(0)) return 'today';
-    if (date === todayStr(1)) return 'tomorrow';
-    return 'later';
   }
 
   function groupOf(item) {
@@ -134,12 +150,12 @@
   function commitEdit(id) {
     var item = findItem(id);
     var input = els.list.querySelector('.edit-input');
-    var select = els.list.querySelector('.edit-select');
+    var dateInput = els.list.querySelector('.edit-date');
     if (item && input) {
       var text = input.value.trim();
       if (text) {
         item.text = text;
-        item.date = dueToDate(select ? select.value : 'later');
+        item.date = dateInput && dateInput.value ? dateInput.value : null;
         save();
       }
     }
@@ -181,15 +197,20 @@
         if (e.key === 'Escape') cancelEdit();
       });
 
-      var select = document.createElement('select');
-      select.className = 'edit-select';
-      [['today', '今天'], ['tomorrow', '明天'], ['later', '以后']].forEach(function (opt) {
-        var o = document.createElement('option');
-        o.value = opt[0];
-        o.textContent = opt[1];
-        select.appendChild(o);
-      });
-      select.value = item.date ? dateToDue(item.date) : 'later';
+      var dateInput = document.createElement('input');
+      dateInput.className = 'edit-date';
+      dateInput.type = 'date';
+      dateInput.value = item.date || '';
+      dateInput.setAttribute('aria-label', '选择日期');
+
+      var clearDate = null;
+      if (item.date) {
+        clearDate = document.createElement('button');
+        clearDate.className = 'link-btn';
+        clearDate.type = 'button';
+        clearDate.textContent = '清除';
+        clearDate.addEventListener('click', function () { dateInput.value = ''; });
+      }
 
       var save = document.createElement('button');
       save.className = 'link-btn';
@@ -198,7 +219,8 @@
       save.addEventListener('click', function () { commitEdit(item.id); });
 
       editRow.appendChild(input);
-      editRow.appendChild(select);
+      editRow.appendChild(dateInput);
+      if (clearDate) editRow.appendChild(clearDate);
       editRow.appendChild(save);
       body.appendChild(editRow);
     } else {
@@ -209,6 +231,14 @@
         text.addEventListener('click', function () { startEdit(item.id); });
       }
       body.appendChild(text);
+
+      if (item.date) {
+        var dateLabel = document.createElement('div');
+        var overdue = !item.done && item.date < todayStr(0);
+        dateLabel.className = 'date-label' + (overdue ? ' overdue' : '');
+        dateLabel.textContent = formatDateLabel(item.date);
+        body.appendChild(dateLabel);
+      }
     }
 
     var del = document.createElement('button');
@@ -240,14 +270,6 @@
     count.textContent = String(items.length);
     right.appendChild(count);
 
-    if (opts.onClear) {
-      var clear = document.createElement('button');
-      clear.className = 'link-btn';
-      clear.type = 'button';
-      clear.textContent = '清除';
-      clear.addEventListener('click', opts.onClear);
-      right.appendChild(clear);
-    }
     title.appendChild(right);
     section.appendChild(title);
 
@@ -255,6 +277,76 @@
     card.className = 'card';
     items.forEach(function (item) { card.appendChild(makeRow(item)); });
     section.appendChild(card);
+
+    return section;
+  }
+
+  function makeDoneSection(done) {
+    var section = document.createElement('section');
+    section.className = 'section';
+
+    var title = document.createElement('div');
+    title.className = 'section-title';
+
+    var toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'done-toggle';
+
+    var arrow = document.createElement('span');
+    arrow.className = 'done-arrow';
+    arrow.textContent = state.doneOpen ? '▾' : '▸';
+    toggle.appendChild(arrow);
+
+    var h2 = document.createElement('h2');
+    h2.textContent = '已完成';
+    toggle.appendChild(h2);
+
+    toggle.addEventListener('click', function () {
+      state.doneOpen = !state.doneOpen;
+      render();
+    });
+    title.appendChild(toggle);
+
+    var right = document.createElement('div');
+    var count = document.createElement('span');
+    count.className = 'count';
+    count.textContent = String(done.length);
+    right.appendChild(count);
+
+    var clear = document.createElement('button');
+    clear.className = 'link-btn';
+    clear.type = 'button';
+    clear.textContent = '清除';
+    clear.addEventListener('click', clearDone);
+    right.appendChild(clear);
+
+    title.appendChild(right);
+    section.appendChild(title);
+
+    if (state.doneOpen) {
+      var byDay = {};
+      var days = [];
+      done.forEach(function (item) {
+        var key = toDateStr(new Date(item.completedAt || 0));
+        if (!byDay[key]) {
+          byDay[key] = [];
+          days.push(key);
+        }
+        byDay[key].push(item);
+      });
+
+      days.sort().reverse().forEach(function (key) {
+        var dayLabel = document.createElement('div');
+        dayLabel.className = 'done-day';
+        dayLabel.textContent = relativeDayLabel(key) + ' · ' + byDay[key].length;
+        section.appendChild(dayLabel);
+
+        var card = document.createElement('div');
+        card.className = 'card';
+        byDay[key].forEach(function (item) { card.appendChild(makeRow(item)); });
+        section.appendChild(card);
+      });
+    }
 
     return section;
   }
@@ -283,7 +375,7 @@
 
     if (done.length) {
       shown++;
-      els.list.appendChild(makeSection('已完成', done, { onClear: clearDone }));
+      els.list.appendChild(makeDoneSection(done));
     }
 
     if (shown === 0) {
@@ -361,8 +453,28 @@
     chip.addEventListener('click', function () {
       state.due = chip.dataset.due;
       els.chips.forEach(function (c) { c.classList.toggle('active', c === chip); });
-      els.input.focus();
+      var isLater = state.due === 'later';
+      els.laterRow.hidden = !isLater;
+      if (isLater) {
+        els.laterDate.min = todayStr(0);
+        els.laterDate.focus();
+      } else {
+        els.input.focus();
+      }
     });
+  });
+
+  els.laterDate.addEventListener('change', function () {
+    state.laterDate = els.laterDate.value;
+    els.laterClear.hidden = !state.laterDate;
+    els.input.focus();
+  });
+
+  els.laterClear.addEventListener('click', function () {
+    els.laterDate.value = '';
+    state.laterDate = '';
+    els.laterClear.hidden = true;
+    els.laterDate.focus();
   });
 
   els.backupBtn.addEventListener('click', exportBackup);
